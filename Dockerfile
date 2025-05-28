@@ -15,7 +15,7 @@ RUN apt-get update && \
 # Install semantic release
 WORKDIR /opt/winc/semver
 RUN npm init -y
-RUN npm install semantic-release
+RUN npm install semantic-release @semantic-release/git @semantic-release/npm @semantic-release/changelog
 
 RUN chmod +x /opt/winc/semver/scripts/main.sh
 
