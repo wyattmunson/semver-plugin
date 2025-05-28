@@ -8,6 +8,7 @@ COPY scripts/ /opt/winc/semver/scripts/
 # Install git and clean up to reduce image size
 RUN apt-get update && \
     apt-get install -y git && \
+    apt-get install -y jq && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

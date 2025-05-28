@@ -11,7 +11,7 @@ echo "▗▄▄▞▘▐▙▄▄▖▐▌  ▐▌ ▝▚▞▘ ▐▙▄▄▖�
 echo "===> PREFLIGHT CHECKS"
 echo "Performing preflight checks to validate configuration and variables before invoking semantic-release"
 
-# CONVERT PLUGIN VARIABLE TO ENV VARIABLES
+# ==== CONVERT PLUGIN VARIABLE TO ENV VARIABLES ====
 # See: https://developer.harness.io/docs/continuous-integration/use-ci/use-drone-plugins/custom_plugins/#variables-in-plugin-scripts
 GITHUB_TOKEN=$PLUGIN_GITHUB_TOKEN
 GITLAB_TOKEN=$PLUGIN_GITLAB_TOKEN
@@ -20,7 +20,8 @@ GIT_CREDENTIALS=$PLUGIN_GIT_CREDENTIALS
 HARNESS_TOKEN=$PLUGIN_HARNESS_TOKEN
 HARNESS_USERNAME=$PLUGIN_HARNESS_USERNAME
 
-# VALIDATE TOKEN: verify one and only one token is set
+# ==== VALIDATE TOKEN IS SET ====
+# Verify one and only one token is set
 
 # Count how many of the four variables are set (non-empty)
 echo "===> CHECK GIT TOKENS..."
@@ -40,7 +41,7 @@ if [ "$count" -gt 1 ]; then
 elif [ "$count" -eq 0 ]; then
   echo "==> ERROR: No Git credential variables were set. Exiting."
   echo "One of GITHUB_TOKEN, GITLAB_TOKEN, BITBUCKET_TOKEN, GIT_CREDENTIALS, or HARNESS_TOKEN must be set."
-#   exit 1
+  exit 1
 fi
 
 # https://$USERNAME:$TOKEN@git.harness.io/$ACCOUNT_ID/$ORG_ID/first-repo.git
@@ -107,3 +108,8 @@ echo "The current working directory is: $(pwd)"
 #########################
 
 npx semantic-release
+
+NPX_STATUS=$?
+
+echo "====> END OF semantic-release LOGS"
+echo "====> SEMVER-PLUGIN LOGS BELOW:"
