@@ -14,10 +14,10 @@ echo "Performing preflight checks to validate configuration and variables before
 
 # ==== CONVERT PLUGIN VARIABLE TO ENV VARIABLES ====
 # See: https://developer.harness.io/docs/continuous-integration/use-ci/use-drone-plugins/custom_plugins/#variables-in-plugin-scripts
-GITHUB_TOKEN=$PLUGIN_GITHUB_TOKEN
-GITLAB_TOKEN=$PLUGIN_GITLAB_TOKEN
-BITBUCKET_TOKEN=$PLUGIN_BITBUCKET_TOKEN
-GIT_CREDENTIALS=$PLUGIN_GIT_CREDENTIALS
+# GITHUB_TOKEN=$PLUGIN_GITHUB_TOKEN
+# GITLAB_TOKEN=$PLUGIN_GITLAB_TOKEN
+# BITBUCKET_TOKEN=$PLUGIN_BITBUCKET_TOKEN
+# GIT_CREDENTIALS=$PLUGIN_GIT_CREDENTIALS
 HARNESS_TOKEN=$PLUGIN_HARNESS_TOKEN
 HARNESS_USERNAME=$PLUGIN_HARNESS_USERNAME
 REPO_DIR=$PLUGIN_REPO_DIR
@@ -32,11 +32,11 @@ ORIGINAL_DIR=$(pwd)
 echo "===> CHECK GIT TOKENS..."
 count=0
 
-[[ -n "$GITHUB_TOKEN" ]] && ((count++))
-[[ -n "$GITLAB_TOKEN" ]] && ((count++))
-[[ -n "$BITBUCKET_TOKEN" ]] && ((count++))
-[[ -n "$GIT_CREDENTIALS" ]] && ((count++))
-[[ -n "$HARNESS_TOKEN" ]] && ((count++))
+[[ -n "$PLUGIN_GITHUB_TOKEN" ]] && ((count++))
+[[ -n "$PLUGIN_GITLAB_TOKEN" ]] && ((count++))
+[[ -n "$PLUGIN_BITBUCKET_TOKEN" ]] && ((count++))
+[[ -n "$PLUGIN_GIT_CREDENTIALS" ]] && ((count++))
+[[ -n "$PLUGIN_HARNESS_TOKEN" ]] && ((count++))
 
 # Exit if more than one is set
 if [ "$count" -gt 1 ]; then
@@ -97,7 +97,7 @@ else
   echo "No RAW_CREDENTIALS variable set to encode."
 fi
 
-# ENCODED_USERNAME_AND_TOKEN="${ENCODED_USERNAME}:${ENCODED_TOKEN}"
+ENCODED_USERNAME_AND_TOKEN="${ENCODED_USERNAME}:${ENCODED_TOKEN}"
 # echo "Unencoded username: $ENCODED_USERNAME_AND_TOKEN"
 
 # SET VARIABLE FOR SEMANTIC-RELEASE
@@ -113,7 +113,10 @@ echo "The current working directory is: $(pwd)"
 #########################
 
 echo "====> INVOKING SEMANTIC-RELEASE..."
-npx semantic-release
+# npx semantic-release
+DATE_STAMP=$(date +"%Y-%m-%d_%H-%M-%S")
+# npx semantic-release
+npx semantic-release 2>&1 | tee ${DATE_STAMP}_semver.log
 
 NPX_STATUS=$?
 
