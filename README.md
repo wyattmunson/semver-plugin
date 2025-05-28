@@ -1,6 +1,6 @@
 # semver-plugin
 
-Semantic versioning in the pipeline.
+semver-plugin is tool to use semantic-release in a Harness pipeline. Semantic versioning in the pipeline.
 
 ## Variables
 

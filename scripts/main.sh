@@ -7,6 +7,7 @@ echo " ▗▄▄▖▗▄▄▄▖▗▖  ▗▖▗▖  ▗▖▗▄▄▄▖▗
 echo "▐▌   ▐▌   ▐▛▚▞▜▌▐▌  ▐▌▐▌   ▐▌ ▐▌"
 echo " ▝▀▚▖▐▛▀▀▘▐▌  ▐▌▐▌  ▐▌▐▛▀▀▘▐▛▀▚▖"
 echo "▗▄▄▞▘▐▙▄▄▖▐▌  ▐▌ ▝▚▞▘ ▐▙▄▄▖▐▌ ▐▌"
+echo "Read the fine docs: https://github.com/wyattmunson/semver-plugin"
 
 echo "===> PREFLIGHT CHECKS"
 echo "Performing preflight checks to validate configuration and variables before invoking semantic-release"
@@ -19,6 +20,7 @@ BITBUCKET_TOKEN=$PLUGIN_BITBUCKET_TOKEN
 GIT_CREDENTIALS=$PLUGIN_GIT_CREDENTIALS
 HARNESS_TOKEN=$PLUGIN_HARNESS_TOKEN
 HARNESS_USERNAME=$PLUGIN_HARNESS_USERNAME
+REPO_DIR=$PLUGIN_REPO_DIR
 
 # OTHER SETUP VARIABLES
 ORIGINAL_DIR=$(pwd)
@@ -40,11 +42,11 @@ count=0
 if [ "$count" -gt 1 ]; then
   echo "==> ERROR: More than one Git credential variable is set. Exiting."
   echo "Only one of GITHUB_TOKEN, GITLAB_TOKEN, BITBUCKET_TOKEN, GIT_CREDENTIALS, or HARNESS_TOKEN may be set."
-  exit 1
+  # exit 1
 elif [ "$count" -eq 0 ]; then
   echo "==> ERROR: No Git credential variables were set. Exiting."
   echo "One of GITHUB_TOKEN, GITLAB_TOKEN, BITBUCKET_TOKEN, GIT_CREDENTIALS, or HARNESS_TOKEN must be set."
-  exit 1
+  # exit 1
 fi
 
 # https://$USERNAME:$TOKEN@git.harness.io/$ACCOUNT_ID/$ORG_ID/first-repo.git
@@ -64,12 +66,12 @@ else
 fi
 
 # ENCODING URL CREDENTIALS
-UNENCODED_USERNAME_AND_TOKEN="${HARNESS_USERNAME}:${HARNESS_TOKEN}"
-echo "Unencoded username: $UNENCODED_USERNAME_AND_TOKEN"
+# UNENCODED_USERNAME_AND_TOKEN="${HARNESS_USERNAME}:${HARNESS_TOKEN}"
+# echo "Unencoded username: $UNENCODED_USERNAME_AND_TOKEN"
 
-RAW_CREDENTIALS=$UNENCODED_USERNAME_AND_TOKEN
+# RAW_CREDENTIALS=$UNENCODED_USERNAME_AND_TOKEN
 
-# URL encode function using jq
+# ==== URL ENCODING FUNCTION ====
 urlencode() {
   local raw="$1"
   jq -nr --arg v "$raw" '$v|@uri'
@@ -80,7 +82,7 @@ RAW_TOKEN=$HARNESS_TOKEN
 ENCODED_USERNAME=""
 ENCODED_TOKEN=""
 
-# Encode and display RAW_USERNAME if set
+# Encode RAW_USERNAME if set
 # TODO: Remove this valiation check, it already happens above
 if [[ -n "$HARNESS_USERNAME" ]]; then
   ENCODED_USERNAME=$(urlencode "$HARNESS_USERNAME")
@@ -106,16 +108,23 @@ echo "Git creds are" $GIT_CREDENTIALS
 echo "===> Preflight validation passed."
 echo "The current working directory is: $(pwd)"
 
+# ==== CHANGE DIRECTORY ====
+# cd /Users/wyatt/code/insecure-express
+cd $REPO_DIR
+FULL_REPO_DIR=$(pwd)
+
 #########################
 # CALL SEMANTIC RELEASE #
 #########################
 
+echo "====> INVOKING SEMANTIC-RELEASE..."
 npx semantic-release
 
 NPX_STATUS=$?
 
 echo "====> END OF semantic-release LOGS"
 echo "====> SEMVER-PLUGIN LOGS BELOW:"
-
-echo "=> semantic-release status: $NPX_STATUS" 
+echo "=> semantic-release status: $(if [[ "$NPX_STATUS" == "0" ]]; then echo "✅ SUCCESS"; else echo "❌ FAILED"; fi)" 
+echo "=> semantic-release exit code: $NPX_STATUS" 
 echo "=> original directory: $ORIGINAL_DIR" 
+echo "=> changed to directory: $FULL_REPO_DIR" 
