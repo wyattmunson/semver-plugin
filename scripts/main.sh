@@ -108,11 +108,6 @@ echo "Git creds are" $GIT_CREDENTIALS
 echo "===> Preflight validation passed."
 echo "The current working directory is: $(pwd)"
 
-# ==== CHANGE DIRECTORY ====
-# cd /Users/wyatt/code/insecure-express
-cd $REPO_DIR
-FULL_REPO_DIR=$(pwd)
-
 #########################
 # CALL SEMANTIC RELEASE #
 #########################
