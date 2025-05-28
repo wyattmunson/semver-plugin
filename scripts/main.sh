@@ -49,6 +49,15 @@ elif [ "$count" -eq 0 ]; then
   # exit 1
 fi
 
+#########################
+# SET COMMITTER DETAILS #
+#########################
+
+GIT_AUTHOR_NAME="${PLUGIN_GIT_AUTHOR_NAME:-wyatt}"
+GIT_AUTHOR_EMAIL="${PLUGIN_GIT_AUTHOR_EMAIL:-wyatt.munson@exmaple.com}"
+GIT_COMMITTER_NAME="${PLUGIN_GIT_COMMITTER_NAME:-wyatt}"
+GIT_COMMITTER_EMAIL="${PLUGIN_GIT_COMMITTER_EMAIL:-wyatt.munson@example.com}"
+
 # https://$USERNAME:$TOKEN@git.harness.io/$ACCOUNT_ID/$ORG_ID/first-repo.git
 
 ############################
@@ -157,10 +166,10 @@ fi
 # fi
 
 
-if [[ "$FIRST_RELEASE" == "true "]]; then
-  VERSION_STATUS="First release"
+# if [[ "$FIRST_RELEASE" == "true "]]; then
+#   VERSION_STATUS="First release"
 
-NEXT_VERSION=$(cat semver-bump.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
+# NEXT_VERSION=$(cat semver-bump.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
 
 echo "=> semantic-release status: $(if [[ "$NPX_STATUS" == "0" ]]; then echo "✅ SUCCESS"; else echo "❌ FAILED"; fi)" 
 echo "=> semantic-release exit code: $NPX_STATUS" 
@@ -168,6 +177,10 @@ echo "=> Directory: $ORIGINAL_DIR"
 echo "=> Version Status: $VERSION_STATUS" 
 echo "=> Existing Version: $EXISTING_VERSION" 
 echo "=> Next Version: $NEXT_VERSION" 
+
+echo "====> SAVING VERSION AS FILE..."
+echo $NEXT_VERSION > .next-version.txt
+echo "==> Saved next version as .next-version.txt"
 
 echo "====> SETTING OUTPUT VARIABLES"
 export ORIGINAL_DIR=$ORIGINAL_DIR

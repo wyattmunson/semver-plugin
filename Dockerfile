@@ -1,4 +1,5 @@
 FROM node:20-slim
+LABEL author="Wyatt Munson"
 
 # Move script files
 RUN mkdir -p /opt/winc/semver
