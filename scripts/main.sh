@@ -62,14 +62,8 @@ if [[ -n "$HARNESS_TOKEN" && -z "$HARNESS_USERNAME" ]]; then
     echo "Error: Harness Code username is not set"
     echo "If HARNESS_TOKEN is set, HARNESS_USERNAME must also be set"
 else
-    echo "No catch token check"
+    echo "Both Harness variables supplied."
 fi
-
-# ENCODING URL CREDENTIALS
-# UNENCODED_USERNAME_AND_TOKEN="${HARNESS_USERNAME}:${HARNESS_TOKEN}"
-# echo "Unencoded username: $UNENCODED_USERNAME_AND_TOKEN"
-
-# RAW_CREDENTIALS=$UNENCODED_USERNAME_AND_TOKEN
 
 # ==== URL ENCODING FUNCTION ====
 urlencode() {
@@ -87,23 +81,24 @@ ENCODED_TOKEN=""
 if [[ -n "$HARNESS_USERNAME" ]]; then
   ENCODED_USERNAME=$(urlencode "$HARNESS_USERNAME")
 else
-  echo "No RAW_CREDENTIALS variable set to encode."
+  echo "ERROR: No HARNESS_USERNAME variable set to encode."
+  echo "Supply HARNESS_USERNAME as an environment variable."
 fi
 
 # Encode and display RAW_USERNAME if set
 if [[ -n "$HARNESS_TOKEN" ]]; then
   ENCODED_TOKEN=$(urlencode "$HARNESS_TOKEN")
 else
-  echo "No RAW_CREDENTIALS variable set to encode."
+  echo "ERROR: No HARNESS_TOKEN variable set to encode."
+  echo "Supply HARNESS_TOKEN as an environment variable."
 fi
 
 ENCODED_USERNAME_AND_TOKEN="${ENCODED_USERNAME}:${ENCODED_TOKEN}"
-# echo "Unencoded username: $ENCODED_USERNAME_AND_TOKEN"
 
 # SET VARIABLE FOR SEMANTIC-RELEASE
 # After formatting Harness credentials, set it to the variable semantic-release is expecting.
 export GIT_CREDENTIALS=$ENCODED_USERNAME_AND_TOKEN
-echo "Git creds are" $GIT_CREDENTIALS
+# echo "Git creds are" $GIT_CREDENTIALS
 
 echo "===> Preflight validation passed."
 echo "The current working directory is: $(pwd)"
@@ -116,13 +111,68 @@ echo "====> INVOKING SEMANTIC-RELEASE..."
 # npx semantic-release
 DATE_STAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 # npx semantic-release
-npx semantic-release 2>&1 | tee ${DATE_STAMP}_semver.log
+# npx semantic-release 2>&1 | tee ${DATE_STAMP}_semver.log
+npx semantic-release 2>&1 | tee semver.log
 
 NPX_STATUS=$?
 
-echo "====> END OF semantic-release LOGS"
+echo "====> END OF semantic-release LOGS <===="
 echo "====> SEMVER-PLUGIN LOGS BELOW:"
+
+NEXT_VERSION=""
+EXISTING_VERSION=""
+VERSION_STATUS="No changes detected"
+NEXT_VERSION="None"
+
+FIRST_RELEASE=false
+if grep -q "No previous release found, retrieving all commits" semver.log; then
+  FIRST_RELEASE=true
+  NEXT_VERSIONv=$(cat semver.log | grep -oE "the next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
+  EXISTING_VERSION="None"
+  VERSION_STATUS="First version"
+fi
+
+UPGRADE_RELEASE=false
+if grep -q "The next release version is" semver.log; then
+  UPGRADE_RELEASE=true
+  NEXT_VERSIONv=$(cat semver.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
+  EXISTING_VERSION=$(cat semver.log | grep -oE "associated with version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $2}')
+  VERSION_STATUS="Upgrading version"
+fi
+
+NO_RELEASE=false
+if grep -q "Found 0 commits since last release" semver.log; then
+  NO_RELEASE=true
+  EXISTING_VERSION=$(cat semver.log | grep -oE "associated with version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $2}')
+  NEXT_VERSIONv="None"
+  # NEXT_VERSIONv=$(cat semver.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
+fi
+
+# if [[ "$FIRST_RELEASE" == "true" ]]; then
+#   VERSION_STATUS="First version"
+# elif [[ "$UPGRADE_RELEASE" == "true" ]]; then
+#   VERSION_STATUS="Upgrading version"
+# else
+#   VERSION_STATUS="No version change"
+# fi
+
+
+if [[ "$FIRST_RELEASE" == "true "]]; then
+  VERSION_STATUS="First release"
+
+NEXT_VERSION=$(cat semver-bump.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
+
 echo "=> semantic-release status: $(if [[ "$NPX_STATUS" == "0" ]]; then echo "✅ SUCCESS"; else echo "❌ FAILED"; fi)" 
 echo "=> semantic-release exit code: $NPX_STATUS" 
-echo "=> original directory: $ORIGINAL_DIR" 
-echo "=> changed to directory: $FULL_REPO_DIR" 
+echo "=> Directory: $ORIGINAL_DIR" 
+echo "=> Version Status: $VERSION_STATUS" 
+echo "=> Existing Version: $EXISTING_VERSION" 
+echo "=> Next Version: $NEXT_VERSION" 
+
+echo "====> SETTING OUTPUT VARIABLES"
+export ORIGINAL_DIR=$ORIGINAL_DIR
+export VERSION_STATUS=$VERSION_STATUS
+export EXISTING_VERSION=$EXISTING_VERSION
+export NEXT_VERSION=$NEXT_VERSION
+
+echo "====> SCRIPT COMPLETE"
