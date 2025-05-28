@@ -136,7 +136,7 @@ NEXT_VERSION="None"
 FIRST_RELEASE=false
 if grep -q "No previous release found, retrieving all commits" semver.log; then
   FIRST_RELEASE=true
-  NEXT_VERSIONv=$(cat semver.log | grep -oE "the next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
+  NEXT_VERSION=$(cat semver.log | grep -oE "the next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
   EXISTING_VERSION="None"
   VERSION_STATUS="First version"
 fi
@@ -144,16 +144,16 @@ fi
 UPGRADE_RELEASE=false
 if grep -q "The next release version is" semver.log; then
   UPGRADE_RELEASE=true
-  NEXT_VERSIONv=$(cat semver.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
-  EXISTING_VERSION=$(cat semver.log | grep -oE "associated with version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $2}')
+  NEXT_VERSION=$(cat semver.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
+  EXISTING_VERSION=$(cat semver.log | grep -oE "associated with version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $4}')
   VERSION_STATUS="Upgrading version"
 fi
 
 NO_RELEASE=false
 if grep -q "Found 0 commits since last release" semver.log; then
   NO_RELEASE=true
-  EXISTING_VERSION=$(cat semver.log | grep -oE "associated with version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $2}')
-  NEXT_VERSIONv="None"
+  EXISTING_VERSION=$(cat semver.log | grep -oE "associated with version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $4}')
+  NEXT_VERSION="None"
   # NEXT_VERSIONv=$(cat semver.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
 fi
 
@@ -164,7 +164,6 @@ fi
 # else
 #   VERSION_STATUS="No version change"
 # fi
-
 
 # if [[ "$FIRST_RELEASE" == "true "]]; then
 #   VERSION_STATUS="First release"
