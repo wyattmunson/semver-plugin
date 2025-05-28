@@ -20,6 +20,9 @@ GIT_CREDENTIALS=$PLUGIN_GIT_CREDENTIALS
 HARNESS_TOKEN=$PLUGIN_HARNESS_TOKEN
 HARNESS_USERNAME=$PLUGIN_HARNESS_USERNAME
 
+# OTHER SETUP VARIABLES
+ORIGINAL_DIR=$(pwd)
+
 # ==== VALIDATE TOKEN IS SET ====
 # Verify one and only one token is set
 
@@ -113,3 +116,6 @@ NPX_STATUS=$?
 
 echo "====> END OF semantic-release LOGS"
 echo "====> SEMVER-PLUGIN LOGS BELOW:"
+
+echo "=> semantic-release status: $NPX_STATUS" 
+echo "=> original directory: $ORIGINAL_DIR" 
