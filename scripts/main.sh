@@ -138,7 +138,7 @@ if grep -q "No previous release found, retrieving all commits" semver.log; then
   FIRST_RELEASE=true
   NEXT_VERSION=$(cat semver.log | grep -oE "the next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
   EXISTING_VERSION="None"
-  VERSION_STATUS="First version"
+  VERSION_STATUS="First run (no previous version)"
 fi
 
 UPGRADE_RELEASE=false
@@ -146,37 +146,26 @@ if grep -q "The next release version is" semver.log; then
   UPGRADE_RELEASE=true
   NEXT_VERSION=$(cat semver.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
   EXISTING_VERSION=$(cat semver.log | grep -oE "associated with version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $4}')
-  VERSION_STATUS="Upgrading version"
+  VERSION_STATUS="Upgraded version"
 fi
 
 NO_RELEASE=false
 if grep -q "Found 0 commits since last release" semver.log; then
   NO_RELEASE=true
   EXISTING_VERSION=$(cat semver.log | grep -oE "associated with version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $4}')
-  NEXT_VERSION="None"
+  NEXT_VERSION="No version change detected"
   # NEXT_VERSIONv=$(cat semver.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
 fi
 
-# if [[ "$FIRST_RELEASE" == "true" ]]; then
-#   VERSION_STATUS="First version"
-# elif [[ "$UPGRADE_RELEASE" == "true" ]]; then
-#   VERSION_STATUS="Upgrading version"
-# else
-#   VERSION_STATUS="No version change"
-# fi
+# ==== PRINT SUMMARY VARIABLES ====
+echo -e "=> semantic-release: \t$(if [[ "$NPX_STATUS" == "0" ]]; then echo "✅ SUCCESS"; else echo "❌ FAILED"; fi)" 
+echo -e "=> exit code: \t\t$NPX_STATUS" 
+echo -e "=> Directory: \t\t$ORIGINAL_DIR" 
+echo -e "=> Version Status: \t$VERSION_STATUS" 
+echo -e "=> Existing Version: \t$EXISTING_VERSION" 
+echo -e "=> Next Version: \t$NEXT_VERSION" 
 
-# if [[ "$FIRST_RELEASE" == "true "]]; then
-#   VERSION_STATUS="First release"
-
-# NEXT_VERSION=$(cat semver-bump.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
-
-echo "=> semantic-release status: $(if [[ "$NPX_STATUS" == "0" ]]; then echo "✅ SUCCESS"; else echo "❌ FAILED"; fi)" 
-echo "=> semantic-release exit code: $NPX_STATUS" 
-echo "=> Directory: $ORIGINAL_DIR" 
-echo "=> Version Status: $VERSION_STATUS" 
-echo "=> Existing Version: $EXISTING_VERSION" 
-echo "=> Next Version: $NEXT_VERSION" 
-
+# ==== SAVE VERSION NUMBER IN FILE ====
 echo "====> SAVING VERSION AS FILE..."
 echo $NEXT_VERSION > .next-version.txt
 echo "==> Saved next version as .next-version.txt"
