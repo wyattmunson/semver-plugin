@@ -65,3 +65,20 @@ This is a PAT token for the specific SCM provider.
 
 - Format variables
 - Target correct repo
+
+## Harness Pipeline Usage
+
+### As a Plugin Step
+
+```bash
+              - step:
+                  type: Plugin
+                  name: semantic version
+                  identifier: semantic_version
+                  spec:
+                    connectorRef: account.MyDockerConnector
+                    image: wyattmunson/semver-plugin:1.0.22
+                    settings:
+                      HARNESS_TOKEN: <+secrets.getValue("MyTokenValue")>
+                      HARNESS_USERNAME: MyUsername@example.com
+```
