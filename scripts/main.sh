@@ -170,10 +170,18 @@ echo "====> SAVING VERSION AS FILE..."
 echo $NEXT_VERSION > .next-version.txt
 echo "==> Saved next version as .next-version.txt"
 
+# EXPORT VARIABLES: to be accessed when the script is called with source
 echo "====> SETTING OUTPUT VARIABLES"
 export ORIGINAL_DIR=$ORIGINAL_DIR
 export VERSION_STATUS=$VERSION_STATUS
 export EXISTING_VERSION=$EXISTING_VERSION
 export NEXT_VERSION=$NEXT_VERSION
+
+# ECHO EXPORTS: to be accessed when this script is called with eval
+echo 'export ORIGINAL_DIR=$ORIGINAL_DIR'
+echo 'export VERSION_STATUS=$VERSION_STATUS'
+echo 'export EXISTING_VERSION=$EXISTING_VERSION'
+echo 'export NEXT_VERSION=$NEXT_VERSION'
+echo 'export TEST_EVAL_EXPORT="filled"'
 
 echo "====> SCRIPT COMPLETE"
