@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/wyattmunson/semver-plugin/compare/v1.1.0...v1.1.1) (2025-05-29)
+
+
+### Bug Fixes
+
+* bump ([2cbc623](https://github.com/wyattmunson/semver-plugin/commit/2cbc623f405f8549cdfb749bc4b64bf25cf40a6e))
+
 # [1.1.0](https://github.com/wyattmunson/semver-plugin/compare/v1.0.0...v1.1.0) (2025-05-29)
 
 
