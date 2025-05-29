@@ -9,7 +9,7 @@ semver-plugin is tool to abstract semantic-release in a Harness pipeline.
 - [Variables](#variables)
 - [Harness Pipeline Usage](#harness-pipeline-usage)
 - [Outputs](#outputs)
-- [Repo Configuration]()
+- [Repo Configuration](#repo-configuration)
 
 ## About Semantic Release
 
@@ -60,6 +60,10 @@ This plugin is designed with needing to be provided any commands (notwithstandin
 If the entrypoint is overridden, the main script can be invoked at `/opt/winc/semver/scripts/main.sh`.
 
 ## Variables
+
+Parameters are supplied to semver-plugin through environment variables.
+
+The most important variable is the git token/credentials. Most of the semantic release variables can also be provided through a configuration file.
 
 ### Git Tokens
 
@@ -124,12 +128,22 @@ This is a PAT token for the specific SCM provider.
 
 ### Optional Variables
 
+#### `REPO_DIR`
+
+Change into a non-default directory where the code repo is located.
+
+- **SET TO**: a `string` that points to the repo's directory
+- **DEFAULT**: working directory
+- The default working directory of this image is `/opt/winc/semver`. CI tools like Harness will automatically change the working directory to the same location the code is located (making this setting unnecessary).
+- If Harness is the CI tool, this variable is not required, assuming the repo is cloned into the default location (i.e., `/harness`).
+
 #### `DRY_RUN`
 
 Run semantic release in dry run mode: detect version changes, but do not bump version or push git tags.
 
 - **SET TO**: `true` to enable dry run mode
 - **DEFAULT**: `false`
+- Previous commits will be analyzed and a new version (if any) will be computed, but no tag will be pushed to the SCM provider.
 
 #### `SKIP_CI`
 
@@ -249,7 +263,7 @@ In addition to running semantic release, this plugin captures and exports severa
 
 ### File
 
-An output file (`.next-version.yaml`) with the `NEXT_VERSION` is created by this plugin. It is created in the working directly of the container.
+An output file (`.next-version.yaml`) with the value of `NEXT_VERSION` is created by this plugin. It is created in the working directly of the container.
 
 In Harness, this file is available at `/harness/.next-version.yaml`.
 
@@ -258,3 +272,27 @@ In Harness, this file is available at `/harness/.next-version.yaml`.
 Slight changes to your code repository.
 
 > Your repo does not need to use Node.js
+
+There are multiple ways to setup a repo for semantic release, but the simplest is to add a `.releaserc` file.
+
+### Create `.releaserc` File
+
+Create a `.releaserc` file in the root of your repository. To get started, use the sample configuration below:
+
+```json
+{
+  "branches": ["master", "main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/changelog",
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ]
+  ]
+}
+```
