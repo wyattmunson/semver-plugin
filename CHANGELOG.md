@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/wyattmunson/semver-plugin/compare/v1.0.0...v1.1.0) (2025-05-29)
+
+
+### Features
+
+* update node version, stable main.sh file ([2b80f8e](https://github.com/wyattmunson/semver-plugin/commit/2b80f8e0776064bad33a3a60cc90d922604c2056))
+
 # 1.0.0 (2025-05-29)
 
 
