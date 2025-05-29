@@ -285,7 +285,7 @@ Outputs a short string describing the status of the semrel run.
   - `Upgraded version` - the version was changed and a previous version was detected
   - `First run (no previous version)` - a version change was detected, but no prior version was found
   - `No changes detected` - no version change was detected, or an unexpected error occurred
-- This can be used in subsequent steps to determine whether to run a command or some other logic
+- This can be used in subsequent steps to determine whether to run a command or some other logic.
 
 ## Repo Configuration
 
