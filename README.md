@@ -4,6 +4,13 @@ Semantic versioning in the pipeline.
 
 semver-plugin is tool to abstract semantic-release in a Harness pipeline.
 
+- [About Semantic Release](#about-semantic-release)
+- [About this Plugin](#about-this-plugin)
+- [Variables](#variables)
+- [Harness Pipeline Usage](#harness-pipeline-usage)
+- [Outputs](#outputs)
+- [Repo Configuration]()
+
 ## About Semantic Release
 
 This tool uses commit messages to detect and trigger version changes using [semantic versioning](https://semver.org/) (1.2.3).
@@ -35,11 +42,22 @@ This tag is then used on the next run to determine the prior version number.
 
 ## About this Plugin
 
-This
+This plugin abstracts the semantic release package and provides all the necessary dependencies without adding them to the code repository.
+
+- Abstraction: get semantic versioning your app without the complexity
+- Designed for CI: add to your pipeline with minimal configuration
+- Built-in dependencies: all the required libraries to run semver are baked into the image
+- Outputs:
 
 ### Docker Image
 
-This plugin is intended to be used in a CI pipeline that supports containerized builds.
+This plugin is intended to be used in a CI pipeline that supports containerized builds. It uses a `node` base image and contains
+
+#### ENTRYPOINT
+
+This plugin is designed with needing to be provided any commands (notwithstanding any environment variables).
+
+If the entrypoint is overridden, the main script can be invoked at `/opt/winc/semver/scripts/main.sh`.
 
 ## Variables
 
@@ -234,3 +252,9 @@ In addition to running semantic release, this plugin captures and exports severa
 An output file (`.next-version.yaml`) with the `NEXT_VERSION` is created by this plugin. It is created in the working directly of the container.
 
 In Harness, this file is available at `/harness/.next-version.yaml`.
+
+## Repo Configuration
+
+Slight changes to your code repository.
+
+> Your repo does not need to use Node.js
