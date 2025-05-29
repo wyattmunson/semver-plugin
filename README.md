@@ -1,14 +1,22 @@
 # semver-plugin
 
-semver-plugin is tool to use semantic-release in a Harness pipeline. Semantic versioning in the pipeline.
+Semantic versioning in the pipeline.
 
-## About Seamntic Release
+semver-plugin is tool to abstract semantic-release in a Harness pipeline.
 
-This tool uses conventional commits to detect and trigger version changes using semantic versioning (1.2.3).
+## About Semantic Release
+
+This tool uses commit messages to detect and trigger version changes using [semantic versioning](https://semver.org/) (1.2.3).
+
+![semantic release flow](./assets/semrel.drawio.png)
+
+### Semantic Versioning
+
+Sem Ver uses a three part version number (e.g., `1.0.0`) to increment version numbers. Each part refers to the major, minor, a patch version respectively.
 
 ### Conventional Commits
 
-Semantic release uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) prefixes like `fix:` in commit messages to detect when to bump the version.
+Semantic release uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), meaning prefixes like `fix:` in commit messages are used o detect when to bump the version.
 
 ```bash
 # Update patch versions (x.x.1)
@@ -18,6 +26,20 @@ feat: add new payment provider
 # Update major versions (1.x.x)
 BREAKING CHANGE: migrating to API version 2
 ```
+
+### Git Tagging
+
+In addition to generating a new version number, this tool also tags the git commit and pushes the tag to a SCM provider.
+
+This tag is then used on the next run to determine the prior version number.
+
+## About this Plugin
+
+This
+
+### Docker Image
+
+This plugin is intended to be used in a CI pipeline that supports containerized builds.
 
 ## Variables
 
@@ -31,11 +53,14 @@ Use the expression `<+secrets.getValue("secret_name")>` to reference a secret in
 
 ### Variable List
 
-| Variable              | Use                                             | Notes                                     |
+> **⚠️ ATTENTION** \
+> Prefix variables with `PLUGIN_` when **not** using a Harness Plugin step.
+
+| Variable              | Set to                                          | Notes                                     |
 | --------------------- | ----------------------------------------------- | ----------------------------------------- |
 | `HARNESS_USERNAME`    | Harness username.                               | Harness user or service account username. |
 | `HARNESS_TOKEN`       | Harness PAT or SAT.                             |                                           |
-| `GIT_CREDENTIALS`     | Generic git credentials.                        | Use URL encoding                          |
+| `GIT_CREDENTIALS`     | Generic git credentials (`USERNAME:PASSWORD`)   | URL encode each value separately          |
 | `GITHUB_TOKEN`        | GitHub PAT credentials.                         |                                           |
 | `GITLAB_TOKEN`        | GitLab PAT credentials.                         |                                           |
 | `BITBUCKET_TOKEN`     | BitBucket PAT credentials.                      |                                           |
@@ -43,6 +68,7 @@ Use the expression `<+secrets.getValue("secret_name")>` to reference a secret in
 | `GIT_AUTHOR_EMAIL`    | Author of email associated with git release tag |                                           |
 | `GIT_COMMITTER_NAME`  | Committer name associated with git release tag  |                                           |
 | `GIT_COMMITTER_EMAIL` | Committer email associated with git release tag |                                           |
+| `DRY_RUN`             | Committer email associated with git release tag |                                           |
 
 ### Variable Descriptions
 
@@ -50,24 +76,24 @@ Use the expression `<+secrets.getValue("secret_name")>` to reference a secret in
 
 This is a Harness PAT or SAT Token.
 
-- **SET TO**: Harness PAT or SAT in plaintext. The script will URL encode the values for you.
+- **SET TO**: Unencoded Harness PAT or SAT. The script will URL encode the values for you.
+- Use when Harness Code is the SCM Provider. This can also be used for a generic git token.
 - If this is provided, no other `_TOKEN` or `GITHUB_CREDENTIALS` variable should be set
-- Use when Harness Code is the SCM Provider
 
 #### `HARNESS_USERNAME`
 
 The Harness username for the user or service account.
 
-- **SET TO**: Harness username plaintext. The script will URL encode the values for you.
-- If `HARNESS_TOKEN` is used, this variable must be set.
-- Use when Harness Code is the SCM Provider
+- **SET TO**: Unencoded Harness username.
+- Use when Harness Code is the SCM Provider. This can also be used for a generic git username.
+- If `HARNESS_TOKEN` is used, this variable **must** be set.
 
 #### `GIT_CREDENTIALS`
 
 Generic git credentials provided in the format `USERNAME:PASSWORD`.
 
 - **SET TO**: a partially URL encoded string (`<url_encoded_username>:<url_encoded_password>`).
-  - The username and password should each individually be URL encoded, meaning the `:` separating the two is not URL encoded.
+  - The username and password should each individually be URL encoded, meaning the `:` separating the two is **not** URL encoded.
   - The script will **not** make the URL encoding for you.
 - If this is provided, no other `_TOKEN` variable should be set
 
@@ -75,8 +101,48 @@ Generic git credentials provided in the format `USERNAME:PASSWORD`.
 
 This is a PAT token for the specific SCM provider.
 
-- **SET TO**: GitHub, GitLab, or BitBucket PAT in plaintext (not URL encoded).
+- **SET TO**: GitHub, GitLab, or BitBucket PAT (not URL encoded).
 - If this is provided, no other `_TOKEN` or `GITHUB_CREDENTIALS` variable should be set
+
+### Optional Variables
+
+#### `DRY_RUN`
+
+Run semantic release in dry run mode: detect version changes, but do not bump version or push git tags.
+
+- **SET TO**: `true` to enable dry run mode
+- **DEFAULT**: `false`
+
+#### `SKIP_CI`
+
+Disable semantic release CI environment verification checks. Use for making releases locally.
+
+- **SET TO**: `true` to skip CI checks
+- **DEFAULT**: `false`
+- Semantic release will prevent new releases if it detects it's running outside a CI pipeline.
+
+#### `REPOSITORY_URL`
+
+Provide a repository URL to semantic release if it cannot be detected automatically.
+
+- **SET TO**: a `string` equal to a valid URL for the repository
+
+#### `TAG_FORMAT`
+
+Provide a repository URL to semantic release if it cannot be detected automatically.
+
+- **SET TO**: a `string` equal to the git tag format that will be used to identify existing releases
+- **DEFAULT**: `v${version}`
+- Semantic release check the `package.json` file and the `git origin` URL.
+- If this plugin is run inside a git directory with an origin set, the repository URL will automatically be detected.
+
+#### `SEMREL_PLUGINS`
+
+Array of NPM plugins to provide to semantic release.
+
+- **SET TO**: a `array` of plugins for semantic release to use.
+- **DEFAULT**: `['@semantic-release/commit-analyzer', '@semantic-release/release-notes-generator', '@semantic-release/npm', '@semantic-release/github']`
+- This can alternately be defined in the repository using some type of `release.config.js` file.
 
 ### Plugin Variables
 
@@ -88,11 +154,6 @@ This plugin is intended to be used as a Harness Plugin step. If it's run in any 
 If a Harness Plugin step is used, use the variable names as normal.
 
 If a Harness Run step, or another build tool is used, prefix the variable names with `PLUGIN_`. For example the variable `REPO_URL` becomes `PLUGIN_REPO_URL`.
-
-test
-
-| Test \
-| Test
 
 ## Preflight Check
 
@@ -158,3 +219,18 @@ Use a Run step in Harness to capture the output variables.
                         type: String
                         value: EXISTING_VERSION
 ```
+
+## Outputs
+
+In addition to running semantic release, this plugin captures and exports several variables.
+
+| Variable           | Use                                                   |
+| ------------------ | ----------------------------------------------------- |
+| `EXISTING_VERSION` | Prior version, if any, before changes are considered. |
+| `NEXT_VERSION`     | Next version, if any (e.g., `3.4.0`).                 |
+
+### File
+
+An output file (`.next-version.yaml`) with the `NEXT_VERSION` is created by this plugin. It is created in the working directly of the container.
+
+In Harness, this file is available at `/harness/.next-version.yaml`.

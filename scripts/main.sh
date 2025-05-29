@@ -1,12 +1,14 @@
 #!/bin/bash
 
-echo "SEMANTIC RELEASE PLUGIN"
+echo "====> START: SEMANTIC RELEASE PLUGIN"
 echo 
 
-echo " ▗▄▄▖▗▄▄▄▖▗▖  ▗▖▗▖  ▗▖▗▄▄▄▖▗▄▄▖ "
-echo "▐▌   ▐▌   ▐▛▚▞▜▌▐▌  ▐▌▐▌   ▐▌ ▐▌"
-echo " ▝▀▚▖▐▛▀▀▘▐▌  ▐▌▐▌  ▐▌▐▛▀▀▘▐▛▀▚▖"
-echo "▗▄▄▞▘▐▙▄▄▖▐▌  ▐▌ ▝▚▞▘ ▐▙▄▄▖▐▌ ▐▌"
+echo "+=== SEMANTIC VERSIONING ==========+"
+echo "|  ▗▄▄▖▗▄▄▄▖▗▖  ▗▖▗▖  ▗▖▗▄▄▄▖▗▄▄▖  |"
+echo "| ▐▌   ▐▌   ▐▛▚▞▜▌▐▌  ▐▌▐▌   ▐▌ ▐▌ |"
+echo "|  ▝▀▚▖▐▛▀▀▘▐▌  ▐▌▐▌  ▐▌▐▛▀▀▘▐▛▀▚▖ |"
+echo "| ▗▄▄▞▘▐▙▄▄▖▐▌  ▐▌ ▝▚▞▘ ▐▙▄▄▖▐▌ ▐▌ |"
+echo "+====================== \/\/\/\ ===+"
 echo "Read the fine docs: https://github.com/wyattmunson/semver-plugin"
 
 echo "===> PREFLIGHT CHECKS"
@@ -14,23 +16,37 @@ echo "Performing preflight checks to validate configuration and variables before
 
 # ==== CONVERT PLUGIN VARIABLE TO ENV VARIABLES ====
 # See: https://developer.harness.io/docs/continuous-integration/use-ci/use-drone-plugins/custom_plugins/#variables-in-plugin-scripts
-# GITHUB_TOKEN=$PLUGIN_GITHUB_TOKEN
-# GITLAB_TOKEN=$PLUGIN_GITLAB_TOKEN
-# BITBUCKET_TOKEN=$PLUGIN_BITBUCKET_TOKEN
-# GIT_CREDENTIALS=$PLUGIN_GIT_CREDENTIALS
-HARNESS_TOKEN=$PLUGIN_HARNESS_TOKEN
-HARNESS_USERNAME=$PLUGIN_HARNESS_USERNAME
-REPO_DIR=$PLUGIN_REPO_DIR
+GITHUB_TOKEN=${PLUGIN_GITHUB_TOKEN:-GITHUB_TOKEN}
+GITLAB_TOKEN=${PLUGIN_GITLAB_TOKEN:-GITLAB_TOKEN}
+BITBUCKET_TOKEN=${PLUGIN_BITBUCKET_TOKEN:-BITBUCKET_TOKEN}
+GIT_CREDENTIALS=${PLUGIN_GIT_CREDENTIALS:-GIT_CREDENTIALS}
+
+# SET SCRIPT VARIABLES
+# Harness Plugins inject variables with a `PLUGIN_` prefix
+# Use the `PLUGIN_` variables if they exist, else fall back on non-prefixed variables
+HARNESS_TOKEN=${PLUGIN_HARNESS_TOKEN:-HARNESS_TOKEN}
+HARNESS_USERNAME=${PLUGIN_HARNESS_USERNAME:-HARNESS_USERNAME}
+REPO_DIR=${PLUGIN_REPO_DIR:-$REPO_DIR}
+
+DEBUG_SEMREL=${PLUGIN_DEBUG_SEMREL:-DEBUG_SEMREL}
+DRY_RUN=${PLUGIN_DRY_RUN:-DRY_RUN}
+SKIP_CI=${PLUGIN_SKIP_CI:-SKIP_CI}
+REPO_URL=${PLUGIN_REPO_URL:-REPO_URL}
+TAG_FORMAT=${PLUGIN_TAG_FORMAT:-TAG_FORMAT}
+SEMREL_PLUGINS=${PLUGIN_SEMREL_PLUGINS:-SEMREL_PLUGINS}
+BRANCHES=${PLUGIN_BRANCHES:-BRANCHES}
+EXTENDS=${PLUGIN_EXTENDS:-EXTENDS}
+
 
 # OTHER SETUP VARIABLES
 ORIGINAL_DIR=$(pwd)
 DEBUG_MODE=false
-DEBUG_SEMREL=false
+# DEBUG_SEMREL=false
 
 # ==== VALIDATE TOKEN IS SET ====
 # Verify one and only one token is set
 
-# Count how many of the four variables are set (non-empty)
+# Count how many of the four token variables are set (non-empty)
 echo "===> CHECK GIT TOKENS..."
 count=0
 
@@ -82,8 +98,6 @@ urlencode() {
   jq -nr --arg v "$raw" '$v|@uri'
 }
 
-RAW_USERNAME=$HARNESS_USERNAME
-RAW_TOKEN=$HARNESS_TOKEN
 ENCODED_USERNAME=""
 ENCODED_TOKEN=""
 
