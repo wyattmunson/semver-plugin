@@ -208,8 +208,8 @@ echo "==> Saved next version as .next-version.txt"
 
 # ENV FILE VARIABLES: to be accessed when the script is called as a Drone/Harness Plugin
 
-echo "====> SETTING DRONE_OUTPUT.env FILE"
-DRONE_OUTPUT="DRONE_OUTPUT.env"
+echo "====> SETTING OUTPUT: DRONE_OUTPUT.env FILE"
+# DRONE_OUTPUT="DRONE_OUTPUT.env"
 echo "ENV_VAR_NAME=somevalue" >> $DRONE_OUTPUT
 echo "ORIGINAL_DIR=$ORIGINAL_DIR" >> $DRONE_OUTPUT
 echo "VERSION_STATUS=$VERSION_STATUS" >> $DRONE_OUTPUT
@@ -217,13 +217,14 @@ echo "EXISTING_VERSION=$EXISTING_VERSION" >> $DRONE_OUTPUT
 echo "NEXT_VERSION=$NEXT_VERSION" >> $DRONE_OUTPUT
 
 # EXPORT VARIABLES: to be accessed when the script is called with source
-echo "====> SETTING OUTPUT VARIABLES"
+echo "====> SETTING OUTPUT: EXPORT VARIABLES"
 export ORIGINAL_DIR=$ORIGINAL_DIR
 export VERSION_STATUS=$VERSION_STATUS
 export EXISTING_VERSION=$EXISTING_VERSION
 export NEXT_VERSION=$NEXT_VERSION
 
 # ECHO EXPORTS: to be accessed when this script is called with eval
+echo "====> SETTING OUTPUT: EVAL COMPATIBLE EXPORT VARIABLES"
 echo "export ORIGINAL_DIR=\"$ORIGINAL_DIR\""
 echo "export VERSION_STATUS=\"$VERSION_STATUS\""
 echo "export EXISTING_VERSION=\"$EXISTING_VERSION\""
