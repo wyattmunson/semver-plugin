@@ -2,6 +2,23 @@
 
 semver-plugin is tool to use semantic-release in a Harness pipeline. Semantic versioning in the pipeline.
 
+## About Seamntic Release
+
+This tool uses conventional commits to detect and trigger version changes using semantic versioning (1.2.3).
+
+### Conventional Commits
+
+Semantic release uses [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) prefixes like `fix:` in commit messages to detect when to bump the version.
+
+```bash
+# Update patch versions (x.x.1)
+fix: updated alignment issue with profile icon
+# Update minor versions (x.1.x)
+feat: add new payment provider
+# Update major versions (1.x.x)
+BREAKING CHANGE: migrating to API version 2
+```
+
 ## Variables
 
 ### Git Tokens
@@ -61,6 +78,22 @@ This is a PAT token for the specific SCM provider.
 - **SET TO**: GitHub, GitLab, or BitBucket PAT in plaintext (not URL encoded).
 - If this is provided, no other `_TOKEN` or `GITHUB_CREDENTIALS` variable should be set
 
+### Plugin Variables
+
+This plugin is intended to be used as a Harness Plugin step. If it's run in any other step type, or in another build tool (not Harness), modify the environment variables for compatibility.
+
+> **⚠️ ATTENTION** \
+> Prefix variables with `PLUGIN_` when **not** using a Harness Plugin step.
+
+If a Harness Plugin step is used, use the variable names as normal.
+
+If a Harness Run step, or another build tool is used, prefix the variable names with `PLUGIN_`. For example the variable `REPO_URL` becomes `PLUGIN_REPO_URL`.
+
+test
+
+| Test \
+| Test
+
 ## Preflight Check
 
 - Format variables
@@ -69,6 +102,11 @@ This is a PAT token for the specific SCM provider.
 ## Harness Pipeline Usage
 
 ### As a Plugin Step
+
+Use a Plugin step in Harness to maximize simplicity.
+
+- No commands needed. The logic is baked into the container.
+- Does not support output variables. Use as a run step to capture output variables.
 
 ```bash
               - step:
@@ -81,4 +119,42 @@ This is a PAT token for the specific SCM provider.
                     settings:
                       HARNESS_TOKEN: <+secrets.getValue("MyTokenValue")>
                       HARNESS_USERNAME: MyUsername@example.com
+```
+
+```
+<+pipeline.stages.build.spec.execution.steps.sem_ver_run_step.output.outputVariables.NEXT_VERSION>
+```
+
+### As a Run Step
+
+Use a Run step in Harness to capture the output variables.
+
+- Prefix environment variables with `PLUGIN_` (e.g., `PLUGIN_HARNESS_TOKEN`).
+- Harness overrides the entrypoint, meaning the script must be invoked in the `command` block. Do not modify this command.
+- Update your Docker connector git username and password.
+
+```
+              - step:
+                  type: Run
+                  name: run_semver
+                  identifier: run_semver
+                  spec:
+                    connectorRef: account.MY_DOCKER_CONNECTOR
+                    image: wyattmunson/semver-plugin:1.0.23
+                    shell: Bash
+                    command: |-
+                      eval "$("/opt/winc/semver/scripts/main.sh" | tee /dev/stderr | grep '^export ')"
+                    envVariables:
+                      PLUGIN_HARNESS_TOKEN: <+secrets.getValue("MY_PAT")>
+                      PLUGIN_HARNESS_USERNAME: "MY_USERNAME"
+                    outputVariables:
+                      - name: NEXT_VERSION
+                        type: String
+                        value: NEXT_VERSION
+                      - name: VERSION_STATUS
+                        type: String
+                        value: VERSION_STATUS
+                      - name: EXISTING_VERSION
+                        type: String
+                        value: EXISTING_VERSION
 ```

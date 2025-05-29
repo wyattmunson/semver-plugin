@@ -24,6 +24,8 @@ REPO_DIR=$PLUGIN_REPO_DIR
 
 # OTHER SETUP VARIABLES
 ORIGINAL_DIR=$(pwd)
+DEBUG_MODE=false
+DEBUG_SEMREL=false
 
 # ==== VALIDATE TOKEN IS SET ====
 # Verify one and only one token is set
@@ -117,15 +119,36 @@ echo "The current working directory is: $(pwd)"
 #########################
 
 echo "====> INVOKING SEMANTIC-RELEASE..."
-# npx semantic-release
+# create timestamp for log file name
 DATE_STAMP=$(date +"%Y-%m-%d_%H-%M-%S")
 # npx semantic-release
 # npx semantic-release 2>&1 | tee ${DATE_STAMP}_semver.log
-npx semantic-release 2>&1 | tee semver.log
+# npx semantic-release 2>&1 | tee semver.log
 
+# BUILD NPX COMMAND
+build_command() {
+  local CMD=("npx" "semantic-release")
+
+  # Add semantic-release flags based on plugin input (env vars)
+  [ "$DEBUG_SEMREL" = "true" ] && CMD+=("--debug")
+  [ "$DRY_RUN" = "true" ] && CMD+=("--dry-run")
+  [ "$SKIP_CI" = "true" ] && CMD+=("--no-ci")
+  [[ -n "$REPO_URL" ]] && CMD+=("-r $REPO_URL")
+  [[ -n "$TAG_FORMAT" ]] && CMD+=("-t $TAG_FORMAT")
+  [[ -n "$SEMREL_PLUGINS" ]] && CMD+=("-p $SEMREL_PLUGINS")
+  [[ -n "$BRANCHES" ]] && CMD+=("--branches $BRANCHES")
+  [[ -n "$EXTENDS" ]] && CMD+=("--extends $EXTENDS")
+
+  echo "${CMD[@]}"
+}
+
+# RUN NPX COMMAND
+eval "$(build_command)" 2>&1 | tee semver.log
+
+# CAPTURE NPX COMMAND EXIT CODE
 NPX_STATUS=$?
 
-echo "====> END OF semantic-release LOGS <===="
+echo "====> semantic-release LOGS ABOVE <===="
 echo "====> SEMVER-PLUGIN LOGS BELOW:"
 
 NEXT_VERSION=""
@@ -172,6 +195,7 @@ echo "==> Saved next version as .next-version.txt"
 
 # ENV FILE VARIABLES: to be accessed when the script is called as a Drone/Harness Plugin
 
+echo "====> SETTING DRONE_OUTPUT.env FILE"
 DRONE_OUTPUT="DRONE_OUTPUT.env"
 echo "ENV_VAR_NAME=somevalue" >> $DRONE_OUTPUT
 echo "ORIGINAL_DIR=$ORIGINAL_DIR" >> $DRONE_OUTPUT
