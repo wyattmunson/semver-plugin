@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/wyattmunson/semver-plugin/compare/v1.1.2...v1.1.3) (2025-05-29)
+
+
+### Bug Fixes
+
+* remove problematic CLI arguments from npx call ([03e66d8](https://github.com/wyattmunson/semver-plugin/commit/03e66d8f1b861093825757548107aff7ff7b4613))
+
 ## [1.1.2](https://github.com/wyattmunson/semver-plugin/compare/v1.1.1...v1.1.2) (2025-05-29)
 
 
