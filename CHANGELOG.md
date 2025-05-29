@@ -1,3 +1,12 @@
+## [1.1.2](https://github.com/wyattmunson/semver-plugin/compare/v1.1.1...v1.1.2) (2025-05-29)
+
+
+### Bug Fixes
+
+* bump ([e423736](https://github.com/wyattmunson/semver-plugin/commit/e423736d888b6021acde787e13789ed7c934c8e2))
+* remove NEXT_VERSION when version number doesn't change ([c8f5f3d](https://github.com/wyattmunson/semver-plugin/commit/c8f5f3d85097771c53b7b6cca7125a4b7f42c519))
+* update the DRONE_OUTPUT.env file reference ([eb48cd3](https://github.com/wyattmunson/semver-plugin/commit/eb48cd381bd5eae1799f9ade72ea924ee29b533e))
+
 ## [1.1.1](https://github.com/wyattmunson/semver-plugin/compare/v1.1.0...v1.1.1) (2025-05-29)
 
 
