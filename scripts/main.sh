@@ -147,14 +147,17 @@ build_command() {
   [ "$DEBUG_SEMREL" = "true" ] && CMD+=("--debug")
   [ "$DRY_RUN" = "true" ] && CMD+=("--dry-run")
   [ "$SKIP_CI" = "true" ] && CMD+=("--no-ci")
-  [[ -n "$REPO_URL" ]] && CMD+=("-r $REPO_URL")
-  [[ -n "$TAG_FORMAT" ]] && CMD+=("-t $TAG_FORMAT")
-  [[ -n "$SEMREL_PLUGINS" ]] && CMD+=("-p $SEMREL_PLUGINS")
-  [[ -n "$BRANCHES" ]] && CMD+=("--branches $BRANCHES")
-  [[ -n "$EXTENDS" ]] && CMD+=("--extends $EXTENDS")
+  # TODO: get these working correctly
+  # [[ -n "$REPO_URL" ]] && CMD+=("-r" "$REPO_URL")
+  # [[ -n "$TAG_FORMAT" ]] && CMD+=("-t" "$TAG_FORMAT")
+  # [[ -n "$SEMREL_PLUGINS" ]] && CMD+=("-p $SEMREL_PLUGINS")
+  # [[ -n "$BRANCHES" ]] && CMD+=("--branches $BRANCHES")
+  # [[ -n "$EXTENDS" ]] && CMD+=("--extends $EXTENDS")
 
   echo "${CMD[@]}"
 }
+
+echo "COMMAND IS:" $(build_command)
 
 # RUN NPX COMMAND
 eval "$(build_command)" 2>&1 | tee semver.log
