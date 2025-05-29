@@ -190,7 +190,6 @@ NO_RELEASE=false
 if grep -q "Found 0 commits since last release" semver.log; then
   NO_RELEASE=true
   EXISTING_VERSION=$(cat semver.log | grep -oE "associated with version [0-9]+\.[0-9]+\.[0-9]+" | awk '{print $4}')
-  NEXT_VERSION="No version change detected"
   # NEXT_VERSIONv=$(cat semver.log | grep -oE "The next release version is ([0-9]+\.[0-9]+\.[0-9]+)" | awk '{print $6}')
 fi
 

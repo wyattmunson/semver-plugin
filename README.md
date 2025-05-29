@@ -267,6 +267,26 @@ An output file (`.next-version.yaml`) with the value of `NEXT_VERSION` is create
 
 In Harness, this file is available at `/harness/.next-version.yaml`.
 
+### Output Variables
+
+#### `NEXT_VERSION`
+
+If semrel detects a version change, this will be set to the new version number, e.g., `1.4.0`. This is populated on the first version and every version upgrade. It is null when no version changes are detected.
+
+#### `EXISTING_VERSION`
+
+If semrel detects an existing or prior version number, this will be set to that version number , e.g., `1.3.26`. This will be populated even if the version doesn't change, assuming a prior version number exists.
+
+#### `VERSION_STATUS`
+
+Outputs a short string describing the status of the semrel run.
+
+- Three output states
+  - `Upgraded version` - the version was changed and a previous version was detected
+  - `First run (no previous version)` - a version change was detected, but no prior version was found
+  - `No changes detected` - no version change was detected, or an unexpected error occurred
+- This can be used in subsequent steps to determine whether to run a command or some other logic
+
 ## Repo Configuration
 
 Slight changes to your code repository.
