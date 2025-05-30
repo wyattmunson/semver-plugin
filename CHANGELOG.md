@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/wyattmunson/semver-plugin/compare/v1.1.3...v1.1.4) (2025-05-30)
+
+
+### Bug Fixes
+
+* update variable exports to send to semrel ([d3e7aad](https://github.com/wyattmunson/semver-plugin/commit/d3e7aad704b7b584c4f190e43f14635bf4dd0d84))
+
 ## [1.1.3](https://github.com/wyattmunson/semver-plugin/compare/v1.1.2...v1.1.3) (2025-05-29)
 
 
