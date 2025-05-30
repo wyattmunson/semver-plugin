@@ -73,24 +73,35 @@ One (and only one) of the following token variables can be set: `GITHUB_TOKEN`, 
 
 Use the expression `<+secrets.getValue("secret_name")>` to reference a secret in Harness.
 
-### Variable List
+### Authentication Variable List
 
-> **⚠️ ATTENTION** \
-> Prefix variables with `PLUGIN_` when **not** using a Harness Plugin step.
+> **1️⃣ CHOOSE ONE** \
+> Only one authentication variable should be set.
 
-| Variable              | Set to                                          | Notes                                     |
-| --------------------- | ----------------------------------------------- | ----------------------------------------- |
-| `HARNESS_USERNAME`    | Harness username.                               | Harness user or service account username. |
-| `HARNESS_TOKEN`       | Harness PAT or SAT.                             |                                           |
-| `GIT_CREDENTIALS`     | Generic git credentials (`USERNAME:PASSWORD`)   | URL encode each value separately          |
-| `GITHUB_TOKEN`        | GitHub PAT credentials.                         |                                           |
-| `GITLAB_TOKEN`        | GitLab PAT credentials.                         |                                           |
-| `BITBUCKET_TOKEN`     | BitBucket PAT credentials.                      |                                           |
-| `GIT_AUTHOR_NAME`     | Author of name associated with git release tag  |                                           |
-| `GIT_AUTHOR_EMAIL`    | Author of email associated with git release tag |                                           |
-| `GIT_COMMITTER_NAME`  | Committer name associated with git release tag  |                                           |
-| `GIT_COMMITTER_EMAIL` | Committer email associated with git release tag |                                           |
-| `DRY_RUN`             | Committer email associated with git release tag |                                           |
+| Variable           | Set to                                                                           |
+| ------------------ | -------------------------------------------------------------------------------- |
+| `HARNESS_TOKEN`    | Harness PAT or SAT.                                                              |
+| `HARNESS_USERNAME` | Harness username. This is required when `HARNESS_TOKEN` is set.                  |
+| `GIT_CREDENTIALS`  | Generic git credentials (`USERNAME:PASSWORD`). URL encode each value separately. |
+| `GITHUB_TOKEN`     | GitHub PAT credentials.                                                          |
+| `GITLAB_TOKEN`     | GitLab PAT credentials.                                                          |
+| `BITBUCKET_TOKEN`  | BitBucket PAT credentials.                                                       |
+
+### Committer Variable List
+
+| Variable              | Set to                                          |
+| --------------------- | ----------------------------------------------- |
+| `GIT_AUTHOR_NAME`     | Author of name associated with git release tag  |
+| `GIT_AUTHOR_EMAIL`    | Author of email associated with git release tag |
+| `GIT_COMMITTER_NAME`  | Committer name associated with git release tag  |
+| `GIT_COMMITTER_EMAIL` | Committer email associated with git release tag |
+
+### Semantic Release Variable List
+
+| Variable       | Set to                                        |
+| -------------- | --------------------------------------------- |
+| `DRY_RUN`      | Use dry run mode (do not release new version) |
+| `DEBUG_SEMVER` | Use dry run mode (do not release new version) |
 
 ### Variable Descriptions
 
@@ -194,12 +205,14 @@ If a Harness Run step, or another build tool is used, prefix the variable names 
 
 ## Harness Pipeline Usage
 
+Add this plugin as a step in the Harness pipeline.
+
 ### As a Plugin Step
 
 Use a Plugin step in Harness to maximize simplicity.
 
 - No commands needed. The logic is baked into the container.
-- Does not support output variables. Use as a run step to capture output variables.
+- Automatically populates output variables (that can be used in later steps)
 
 ```bash
               - step:
@@ -207,16 +220,21 @@ Use a Plugin step in Harness to maximize simplicity.
                   name: semantic version
                   identifier: semantic_version
                   spec:
-                    connectorRef: account.MyDockerConnector
-                    image: wyattmunson/semver-plugin:1.0.22
+                    connectorRef: account.MY_CONNECTOR
+                    image: wyattmunson/semver-plugin:1.1.3
                     settings:
-                      HARNESS_TOKEN: <+secrets.getValue("MyTokenValue")>
-                      HARNESS_USERNAME: MyUsername@example.com
+                      HARNESS_TOKEN: <+secrets.getValue("MY_TOKEN")>
+                      HARNESS_USERNAME: MY_USERNAME@example.com
 ```
 
 ```
+<+execution.steps.sem_ver_run_step.output.outputVariables.NEXT_VERSION>
 <+pipeline.stages.build.spec.execution.steps.sem_ver_run_step.output.outputVariables.NEXT_VERSION>
 ```
+
+- `NEXT_VERSION`
+- `EXISTING_VERSION`
+- `VERSION_STATUS`
 
 ### As a Run Step
 
@@ -275,21 +293,21 @@ If semrel detects a version change, this will be set to the new version number, 
 
 #### `EXISTING_VERSION`
 
-If semrel detects an existing or prior version number, this will be set to that version number , e.g., `1.3.26`. This will be populated even if the version doesn't change, assuming a prior version number exists.
+If semrel detects an existing or prior version number, this will be set to that version number , e.g., `1.3.26`. This is populated when a prior version number is found (even if the version doesn't change). It is null when no prior version number exists.
 
 #### `VERSION_STATUS`
 
-Outputs a short string describing the status of the semrel run.
+Outputs a short string describing the status of the version check.
 
 - Three output states
-  - `Upgraded version` - the version was changed and a previous version was detected
-  - `First run (no previous version)` - a version change was detected, but no prior version was found
+  - `Upgraded version` - the version was changed and a previous version was detected. The version number will be upgraded.
+  - `First run (no previous version)` - a version change was detected, but no prior version was found. The first version number will be created.
   - `No changes detected` - no version change was detected, or an unexpected error occurred
 - This can be used in subsequent steps to determine whether to run a command or some other logic.
 
 ## Repo Configuration
 
-Slight changes to your code repository.
+Make these changes in you codebase to add semantic versioning to you code repository.
 
 > Your repo does not need to use Node.js
 
@@ -316,3 +334,6 @@ Create a `.releaserc` file in the root of your repository. To get started, use t
   ]
 }
 ```
+
+- No additional configuration is needed to the repository beyond adding the above file.
+- No requirements to add a `package.json` file or install npm dependencies.
