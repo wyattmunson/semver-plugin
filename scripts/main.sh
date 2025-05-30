@@ -113,7 +113,7 @@ ENCODED_TOKEN=""
 ENCODED_USERNAME=$(urlencode "$HARNESS_USERNAME")
 ENCODED_TOKEN=$(urlencode "$HARNESS_TOKEN")
 
-if [[ "$ENCODED_USERNAME" || -z "$ENCODED_TOKEN" ]]; then
+if [[ -z "$ENCODED_USERNAME" || -z "$ENCODED_TOKEN" ]]; then
   echo "ERROR: Username or token failed to encode. Exiting."
   echo "Ensure HARNESS_USERNAME and HARNESS_TOKEN are both set to a plaintext value."
   exit 1
