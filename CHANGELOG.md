@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/wyattmunson/semver-plugin/compare/v1.1.4...v1.1.5) (2025-05-30)
+
+
+### Bug Fixes
+
+* update encoded variable check ([6423032](https://github.com/wyattmunson/semver-plugin/commit/64230329cfe2f7b11d009b52e662ef36712aeded))
+
 ## [1.1.4](https://github.com/wyattmunson/semver-plugin/compare/v1.1.3...v1.1.4) (2025-05-30)
 
 
